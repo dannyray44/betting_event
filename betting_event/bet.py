@@ -5,6 +5,7 @@ import typing
 from os.path import dirname, join
 
 from .bookmaker import BOOKMAKER_T, Bookmaker
+from .utils import from_decimal, to_decimal
 
 
 class BetType(enum.Enum):
@@ -202,7 +203,9 @@ class Bet:
         self.bet_type: BetType = BetType(bet_type) if not isinstance(bet_type, str) else BetType[bet_type]
 
         self.value: str = value
-        self.odds: float = float(odds)
+        # Store odds canonically as decimal, converting from the bookmaker's native
+        # odds format. Must run before any odds > 1.0 validation (in from_dict).
+        self.odds: float = to_decimal(odds, self.bookmaker.odds_format)
         if lay is None:
             lay = self.DEFAULTS["lay"]
         self.lay: bool = lay if not isinstance(lay, str) else (lay.lower() != "false")
@@ -258,6 +261,9 @@ class Bet:
                     del result[key]
 
         result["bet_type"] = self.bet_type.name
+        if "odds" in result:
+            # Emit odds back in the bookmaker's native format so (odds_format, odds) round-trips.
+            result["odds"] = from_decimal(self.odds, self.bookmaker.odds_format)
         if "bookmaker" in result:
             result["bookmaker"] = self.bookmaker.id
 

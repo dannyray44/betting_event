@@ -12,10 +12,12 @@
     },
     "bookmaker": {
         "commission": 0.0,
+        "commission_type": "winnings",
         "wager_limit": -1.0,
         "ignore_wager_precision": false,
         "max_wager_count": -1,
-        "lowest_valid_wager": 0.01
+        "lowest_valid_wager": 0.01,
+        "odds_format": "decimal"
     },
     "bet": {
         "bookmaker": 0,
